@@ -1,0 +1,26 @@
+name: lakehouse
+version: "0.1.0"
+config-version: 2
+profile: lakehouse
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+seeds:
+  lakehouse:
+    +schema: bronze
+
+models:
+  lakehouse:
+    silver:
+      +schema: silver
+      +materialized: view
+    dimensions:
+      +schema: gold
+      +materialized: view
+    gold:
+      +schema: gold
+      +materialized: table
+      # Athena only: incremental merge requires Iceberg tables. Ignored by DuckDB.
+      +table_type: iceberg

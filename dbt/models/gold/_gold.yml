@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: dim_user
+    columns:
+      - name: user_id
+        data_tests: [not_null, unique]
+
+  - name: dim_date
+    columns:
+      - name: date_day
+        data_tests: [not_null, unique]
+
+  - name: fct_lead_funnel
+    columns:
+      - name: lead_id
+        data_tests: [not_null, unique]
+      - name: owner_user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_id
+      - name: stage_rank
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        data_tests: [not_null, unique]
+      - name: owner_user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_id
+      - name: order_month
+        data_tests: [not_null]
+
+  - name: fct_conversion_cohort
+    columns:
+      - name: cohort_month
+        data_tests: [not_null, unique]
+      - name: conversion_rate
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1

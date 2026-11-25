@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: stg_users
+    columns:
+      - name: user_id
+        data_tests: [not_null, unique]
+      - name: manager_user_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_users')
+                field: user_id
+
+  - name: stg_crm_leads
+    columns:
+      - name: lead_id
+        data_tests: [not_null, unique]
+      - name: owner_user_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_users')
+                field: user_id
+      - name: stage
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [new, contacted, qualified, won, lost]
+      - name: phone_e164
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "~ '^\\+[0-9]{8,15}$'"
+              config:
+                where: "phone_e164 is not null"
+
+  - name: stg_call_logs
+    columns:
+      - name: call_id
+        data_tests: [not_null, unique]
+      - name: lead_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_crm_leads')
+                field: lead_id
+      - name: direction
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [inbound, outbound]
+      - name: duration_sec
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_tests: [not_null, unique]
+      - name: lead_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_crm_leads')
+                field: lead_id
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [paid, pending, refunded]
+      - name: amount
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false

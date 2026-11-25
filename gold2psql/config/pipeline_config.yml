@@ -1,0 +1,53 @@
+# Gold -> PostgreSQL promotion. Paths are relative to the repo root (where `make` runs).
+# GOLD2PSQL_DSN, if set, overrides target.dsn.
+# Masking is applied in every environment except "prod" (GOLD2PSQL_ENV overrides).
+environment: dev
+
+# Only needed when a table has post_sync_event (GOLD2PSQL_AMQP_URL overrides).
+events:
+  url: amqp://guest:guest@localhost:5672/
+
+source:
+  duckdb_path: .data/lakehouse.duckdb
+  schema: gold
+
+target:
+  dsn: postgresql://gold2psql:gold2psql@localhost:5433/serving
+  schema: public
+
+# Per table: primary_key (required), batch_size (default 1000), and exactly one of
+#   full_refresh: true            truncate + reload (mirrors source deletes)
+#   watermark_column: <column>    upsert rows with watermark >= max(target watermark)
+# Optional per table:
+#   masking: {column: sequential | hash | null}   non-prod only; text columns (see masking.py)
+#   post_sync_sql: [sql, ...]     runs in the sync transaction; {table} = target table
+#   post_sync_event: {queue, retries, retry_delay_seconds}   published after the commit
+tables:
+  - name: dim_user
+    primary_key: [user_id]
+    full_refresh: true
+    masking:
+      user_name: sequential
+      manager_name: hash
+    post_sync_sql:
+      - analyze {table}
+
+  - name: dim_date
+    primary_key: [date_day]
+    batch_size: 500
+    full_refresh: true
+
+  - name: fct_lead_funnel
+    primary_key: [lead_id]
+    watermark_column: updated_at
+
+  - name: fct_orders
+    primary_key: [order_id]
+    watermark_column: updated_at
+    post_sync_event:
+      queue: gold_sync_events
+      retries: 3
+
+  - name: fct_conversion_cohort
+    primary_key: [cohort_month]
+    full_refresh: true
