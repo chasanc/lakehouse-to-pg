@@ -1,3 +1,7 @@
+# .env (copy .env.example) feeds gold2psql and pytest; in deployment inject real env vars instead.
+-include .env
+export
+
 DBT = cd dbt && uv run dbt
 
 .PHONY: data deps seed build test run clean up down sync pytest

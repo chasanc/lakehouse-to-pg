@@ -15,6 +15,7 @@ jobs:
 
       # Postgres + RabbitMQ (docker-compose.yml). Integration tests skip silently without
       # them, so start them first and let `make pytest` fail if they are missing.
+      - run: cp .env.example .env
       - run: make up
       - run: make pytest
 

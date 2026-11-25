@@ -36,6 +36,8 @@ from one YAML config. Everything runs locally and in CI at zero cloud cost.
   `nosemgrep` suppression for the false-positive `.execute(variable)` rule.
 - Integration tests skip when Postgres/RabbitMQ are unreachable. CI runs `make up` first so they
   cannot skip silently there.
-- Masking is on everywhere except `GOLD2PSQL_ENV=prod`. Overrides: `GOLD2PSQL_DSN`,
-  `GOLD2PSQL_AMQP_URL`, `GOLD2PSQL_ENV`.
+- Masking is on everywhere except `GOLD2PSQL_ENV=prod`.
+- Secrets: none in the repo. First run: `cp .env.example .env` (git-ignored; `make` and
+  `docker compose` read it). `GOLD2PSQL_DSN` is required, `GOLD2PSQL_AMQP_URL` when a table
+  has `post_sync_event`; in deployment inject them as real env vars. Never commit `.env`.
 - `dim_date` ends 2027-12-31; extend the `date_spine` end date before data goes past it.

@@ -33,6 +33,14 @@ def test_dsn_env_overrides(tmp_path, monkeypatch):
     assert cfg.dsn == "postgresql://env/db"
 
 
+def test_missing_dsn_is_an_error(tmp_path, monkeypatch):
+    monkeypatch.delenv("GOLD2PSQL_DSN", raising=False)
+    path = write_cfg(tmp_path, [{"name": "a", "primary_key": ["id"], "full_refresh": True}],
+                     target={"schema": "public"})
+    with pytest.raises(ConfigError, match="GOLD2PSQL_DSN"):
+        load_config(path)
+
+
 @pytest.mark.parametrize("table", [
     {"name": "a", "full_refresh": True},                                              # no pk
     {"name": "a", "primary_key": [], "full_refresh": True},                           # empty pk

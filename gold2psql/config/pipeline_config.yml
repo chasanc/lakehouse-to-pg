@@ -1,18 +1,14 @@
 # Gold -> PostgreSQL promotion. Paths are relative to the repo root (where `make` runs).
-# GOLD2PSQL_DSN, if set, overrides target.dsn.
+# Credentials are not stored here: GOLD2PSQL_DSN (required) and GOLD2PSQL_AMQP_URL (needed
+# when a table has post_sync_event) come from the environment / .env (see .env.example).
 # Masking is applied in every environment except "prod" (GOLD2PSQL_ENV overrides).
 environment: dev
-
-# Only needed when a table has post_sync_event (GOLD2PSQL_AMQP_URL overrides).
-events:
-  url: amqp://guest:guest@localhost:5672/
 
 source:
   duckdb_path: .data/lakehouse.duckdb
   schema: gold
 
 target:
-  dsn: postgresql://gold2psql:gold2psql@localhost:5433/serving
   schema: public
 
 # Per table: primary_key (required), batch_size (default 1000), and exactly one of

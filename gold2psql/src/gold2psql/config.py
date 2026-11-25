@@ -129,10 +129,12 @@ def load_config(path: str | Path) -> Config:
     try:
         source, target, tables = raw["source"], raw["target"], raw["tables"]
         duckdb_path, source_schema = source["duckdb_path"], source["schema"]
-        dsn = os.environ.get("GOLD2PSQL_DSN") or target["dsn"]
+        dsn = os.environ.get("GOLD2PSQL_DSN") or target.get("dsn")
         target_schema = target.get("schema", "public")
-    except (KeyError, TypeError) as e:
+    except (KeyError, TypeError, AttributeError) as e:
         raise ConfigError(f"missing or malformed config section: {e}") from e
+    if not dsn:
+        raise ConfigError("no target DSN: set GOLD2PSQL_DSN (see .env.example)")
     if not isinstance(tables, list) or not tables:
         raise ConfigError("tables must be a non-empty list")
     parsed = tuple(_table(t) for t in tables)

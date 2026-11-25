@@ -1,20 +1,24 @@
+# Credentials come from .env (copy .env.example); compose reads it automatically.
 services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_USER: gold2psql
-      POSTGRES_PASSWORD: gold2psql
-      POSTGRES_DB: serving
+      POSTGRES_USER: ${POSTGRES_USER:?copy .env.example to .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env}
+      POSTGRES_DB: ${POSTGRES_DB:?copy .env.example to .env}
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gold2psql -d serving"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 2s
       timeout: 3s
       retries: 20
 
   rabbitmq:
     image: rabbitmq:3.13
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?copy .env.example to .env}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?copy .env.example to .env}
     ports:
       - "5672:5672"
     healthcheck:

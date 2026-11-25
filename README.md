@@ -4,6 +4,7 @@ A local lakehouse (dbt + DuckDB, bronze -> silver -> gold) and a config-driven s
 gold tables to PostgreSQL. All data is synthetic.
 
 ```
+cp .env.example .env   # local-dev credentials; git-ignored
 make run     # containers up, dbt seed -> build -> test, then gold -> Postgres sync
 make pytest  # gold2psql unit + integration tests
 ```
