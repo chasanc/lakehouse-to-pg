@@ -1,0 +1,20 @@
+lakehouse:
+  target: duckdev
+  outputs:
+    # Local + CI target: zero cloud cost.
+    duckdev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../.data/lakehouse.duckdb') }}"
+      threads: 4
+
+    # Production parity (S3 + Glue + Iceberg). Documented only: needs `dbt-athena` installed
+    # (`uv add dbt-athena`) and paid AWS resources, so it is never run in CI.
+    # Usage: dbt build --target athena
+    athena:
+      type: athena
+      s3_staging_dir: "{{ env_var('ATHENA_S3_STAGING_DIR', 's3://CHANGE-ME/athena-results/') }}"
+      s3_data_dir: "{{ env_var('ATHENA_S3_DATA_DIR', 's3://CHANGE-ME/lakehouse/') }}"
+      region_name: "{{ env_var('AWS_REGION', 'eu-west-1') }}"
+      database: awsdatacatalog
+      schema: lakehouse
+      threads: 4

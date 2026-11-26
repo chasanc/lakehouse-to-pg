@@ -1,0 +1,11 @@
+version: 2
+
+# Raw synthetic data, loaded by `dbt seed` into the bronze schema.
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: crm_leads
+      - name: users
+      - name: call_logs
+      - name: orders

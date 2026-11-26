@@ -1,0 +1,26 @@
+name: ci
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+
+      # Postgres + RabbitMQ (docker-compose.yml). Integration tests skip silently without
+      # them, so start them first and let `make pytest` fail if they are missing.
+      - run: cp .env.example .env
+      - run: make up
+      - run: make pytest
+
+      # dbt seed -> build -> test, then gold2psql sync (the one-command deliverable).
+      - run: make run
+
+      - if: always()
+        run: make down

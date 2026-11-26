@@ -1,0 +1,21 @@
+user_id,full_name,role,manager_id
+1,Noah Stone,manager,
+2,Zoe Lopez,manager,
+3,Liam Park,manager,
+4,Noah Frost,manager,
+5,Noah Bell,agent,4
+6,Ava Stone,agent,1
+7,Liam Lopez,agent,1
+8,Nora Lopez,agent,4
+9,Liam Ito,agent,3
+10,Ava Park,agent,4
+11,Ethan Khan,agent,2
+12,Liam Meyer,agent,1
+13,Noah Silva,agent,1
+14,Ethan Meyer,agent,3
+15,Ava Ito,agent,1
+16,Ivy Reed,agent,3
+17,Omar Meyer,agent,2
+18,Noah Stone,agent,2
+19,Zoe Reed,agent,2
+20,Noah Silva,agent,3
